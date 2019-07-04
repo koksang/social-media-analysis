@@ -45,14 +45,14 @@ Also export AIRFLOW_HOME as the repo base directory. Mine is `~/twitter-trends-c
 Then, run initialize airflow db, server and scheduler.
 
 ## How it works
-#### Block Diagram:
+#### Block Diagram:d ~
 ![alt text][image1]
 
-An Airflow DAG named `**"twitter_crawling_dag"**` will be created.
+An Airflow DAG named `"twitter_crawling_dag"` will be created.
 
 Currently, the dag:
-1. Runs hourly
-2. Crawl top 5 worldwide trends and retrieve top 5 tweets
-3. Go into profile of each tweet, and crawl two pages (~40 latest tweets)
+1. Runs **hourly**
+2. Crawl **top 5** worldwide trends and retrieve **top 5 tweets**
+3. Go into profile of each tweet, and crawl **two pages (~40 latest tweets)**
 
 Feel free to change it for your own use, Cheers!
