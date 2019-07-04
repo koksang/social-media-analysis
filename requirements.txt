@@ -1,0 +1,8 @@
+apache-airflow
+docker-compose
+kafka-python
+tweepy
+bs4
+requests
+mongoengine
+pymongo

@@ -9,7 +9,6 @@ if sys.platform == 'darwin' or sys.platform == 'linux':
 
 from bs4 import BeautifulSoup as bs
 from mongoengine import connect
-from pymongo import MongoClient
 from tweet import Post
 
 class TwitterScraper():

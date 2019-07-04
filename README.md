@@ -20,7 +20,7 @@ Stacks includes:
 - Apache Airflow
 - Apache Kafka
 - MongoDB
-- Mainly Dockers
+- Mainly Docker
 
 You will need to pull and run docker image of MongoDB, I use port 5000 for my MongoDB:
 ```
@@ -37,7 +37,7 @@ Make sure mongo, kafka and zookeeper are all up.
 
 The crawler uses **tweepy api** for retrieving trends, so get your key and secret. Export them into your environment, I do write them into my .env.
 
-Also export AIRFLOW_HOME as the repo base directory. Mine is '~/twitter-trends-crawling'
+Also export AIRFLOW_HOME as the repo base directory. Mine is `~/twitter-trends-crawling`
 
 Then, run initialize airflow db, server and scheduler.
 
