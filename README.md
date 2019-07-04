@@ -25,7 +25,7 @@ Stack includes:
 - MongoDB
 - Mainly Docker
 
-You will need to pull and run docker image of MongoDB, I use port 5000 for my MongoDB:
+You will need to pull and run docker image of MongoDB, I use port `5000` for my MongoDB:
 ```
     $ docker pull mongo
     $ docker run -p 5000:5000 --name mongodb -d mongo
