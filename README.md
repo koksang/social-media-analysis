@@ -1,6 +1,9 @@
 # Twitter Worldwide Trends Crawling
 Twitter trends crawler that runs as a scheduled service
 
+[//]: # (Image References)
+[image1]: ./flow.jpg "Crawler Block Diagram"
+
 ## Requirements
 Firstly, you will need **Python 3** of course.
 
@@ -16,7 +19,7 @@ Install from requirements.txt
 ```
 
 ## Setup
-Stacks includes:
+Stack includes:
 - Apache Airflow
 - Apache Kafka
 - MongoDB
@@ -28,21 +31,24 @@ You will need to pull and run docker image of MongoDB, I use port 5000 for my Mo
     $ docker run -p 5000:5000 --name mongodb -d mongo
 ```
 
-Then run docker compose for kafka, I use default port 9092 and 2181, feel free to change it:
+Then run docker compose for kafka, I use default port `9092` and `2181`, feel free to change it:
 ```
     $ docker-compose -f src/kafka/docker-compose.yml up -d
 ```
 
 Make sure mongo, kafka and zookeeper are all up.
 
-The crawler uses **tweepy api** for retrieving trends, so get your key and secret. Export them into your environment, I do write them into my .env.
+The crawler uses **tweepy api** for retrieving trends, so get your key and secret. Export them into your environment, I do write them into `.env.`
 
 Also export AIRFLOW_HOME as the repo base directory. Mine is `~/twitter-trends-crawling`
 
 Then, run initialize airflow db, server and scheduler.
 
-## Usage
-An Airflow DAG named *"twitter_crawling_dag"* will be created.
+## How it works
+#### Block Diagram:
+![alt text][image1]
+
+An Airflow DAG named `**"twitter_crawling_dag"**` will be created.
 
 Currently, the dag:
 1. Runs hourly
