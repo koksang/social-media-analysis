@@ -30,8 +30,3 @@ def get_trends_message(client=consumer_trends):
 def get_users_message(client=consumer_users):
     messages = [json.loads(msg.value.decode('utf-8')) for msg in client]
     return messages
-
-
-if __name__ == '__main__':
-    msg = get_messages()
-    print(msg)

@@ -146,9 +146,3 @@ class TwitterScraper():
 
         Post.objects().insert(post_data)
         print('Number of tweets loaded into db -> %i' % len(post_data))
-
-if __name__ == "__main__":
-    scraper = TwitterScraper()
-
-    data = scraper.crawl_users_profile()
-    scraper.save(data)

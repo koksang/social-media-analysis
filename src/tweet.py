@@ -14,9 +14,3 @@ class Post(mongoengine.Document):
         self.influencer_name = self.influencer_name.strip()
         self.date = self.date.strip()
         self.title = self.title.strip()
-
-if __name__ == '__main__':
-    db = connect(db='twitter', host='localhost', port=5000)
-    text = Post.objects().count()
-    print(text)
-
