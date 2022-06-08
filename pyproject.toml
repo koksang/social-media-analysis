@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "twitter-trends-crawling"
+version = "0.1.0"
+description = "End-to-end data pipeline for Twitter trends crawling"
+authors = ["koksang <koksanggl@gmail.com>"]
+license = "MIT License"
+
+[tool.poetry.dependencies]
+python = ">=3.9, <3.11"
+requests = "^2.27.1"
+hydra-core = "^1.2.0"
+httpx = "^0.23.0"
+streamlit = "^1.10.0"
+pathlib = "^1.0.1"
+attrs = "^21.4.0"
+confluent-kafka = "^1.8.2"
+dbt-bigquery = "^1.1.0"
+google-cloud-bigquery = "^2.34.3"
+jupyterlab = "^3.4.2"
+beautifulsoup4 = "^4.11.1"
+snscrape = "^0.4.3"
+black = "^22.3.0"
+pylint = "^2.14.0"
+pytest = "^7.1.2"
+loguru = "^0.6.0"
+ray = "^1.12.1"
+tqdm = "^4.64.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
