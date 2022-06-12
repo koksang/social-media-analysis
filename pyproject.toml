@@ -25,6 +25,7 @@ pytest = "^7.1.2"
 loguru = "^0.6.0"
 ray = "^1.12.1"
 tqdm = "^4.64.0"
+PyYAML = "^6.0"
 
 [tool.poetry.dev-dependencies]
 
