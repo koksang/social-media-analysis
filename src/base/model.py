@@ -12,6 +12,7 @@ from snscrape.modules.twitter import (
     TwitterTweetScraper,
     TwitterUserScraper,
 )
+from confluent_kafka import Producer, Consumer
 
 #
 from base.logger import LOGGER as log
@@ -87,21 +88,43 @@ class Queue(Task):
     class mode:
         PRODUCE: ClassVar[str] = "PRODUCE"
         CONSUME: ClassVar[str] = "CONSUME"
+        DEFAULT: ClassVar[str] = "DEFAULT"
+        _KEYS: ClassVar[dict] = {
+            DEFAULT: "default",
+            CONSUME: "consumer",
+        }
 
     config: Union[dict, str] = field(kw_only=True, converter=convert_config)
     run_mode: str = field(kw_only=True, converter=clean_str)
+    messages: list[dict] = field(kw_only=True, default=None)
+    max_results: int = field(default=10, converter=int, validator=validators.ge(1))
 
     @config.validator
     def check_config(self, _, value):
         if not isinstance(value, dict):
             raise ValueError(f"Unsupported config: {value} - {type(value)}")
 
-        kafka_keys = {"default", "consumer"}
-        if not value.keys() >= kafka_keys:
-            raise KeyError(f"Config must have keys: {kafka_keys}")
+        config_keys = set(self.mode._KEYS.values())
+        if not value.keys() >= config_keys:
+            raise KeyError(f"Config must have keys: {config_keys}")
 
     @run_mode.validator
     def check_run_mode(self, _, value):
         if value not in [self.mode.PRODUCE, self.mode.CONSUME]:
             raise ValueError(f"Unsupported mode: {value}")
         pass
+
+    def _get_runner(self):
+        config = self.config[self.mode._KEYS[self.mode.DEFAULT]]
+        if self.run_mode in self.mode._KEYS.keys():
+            config.update(self.config[self.mode._KEYS[self.run_mode]])
+
+        runners = {
+            self.mode.PRODUCE: Producer,
+            self.mode.CONSUME: Consumer,
+        }
+
+        if self.run_mode == self.mode.CONSUME:
+            raise NotImplementedError(f"Not implemented - run_mode: {self.run_mode}")
+
+        return runners[self.run_mode](config=config)
