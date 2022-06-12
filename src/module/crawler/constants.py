@@ -1,0 +1,1 @@
+MAX_TWEETS = 10
