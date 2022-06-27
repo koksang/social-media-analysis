@@ -26,6 +26,8 @@ loguru = "^0.6.0"
 ray = "^1.12.1"
 tqdm = "^4.64.0"
 PyYAML = "^6.0"
+pyspark = {extras = ["sql", "pandas_on_spark"], version = "^3.3.0"}
+plotly = "^5.8.2"
 
 [tool.poetry.dev-dependencies]
 

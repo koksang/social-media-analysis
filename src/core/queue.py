@@ -1,18 +1,14 @@
-"""Queue module
-"""
+"""Queue module"""
 
-import os
-import sys
-import ray
 
 from tqdm import tqdm
 
 #
-from base.model import Queue
-from base.logger import LOGGER as log
+from core.logger import LOGGER as log
+from model.core import Queue
 
 
-class App(Queue):
+class KafkaQueue(Queue):
     def _produce(self) -> None:
         def callback(error, message):
             if error:
@@ -41,8 +37,3 @@ class App(Queue):
         runner = self._get_runner()
         if self.run_mode == self.mode.PRODUCE:
             self._produce()
-
-
-if __name__ == "__main__":
-    app = App(max_results=10)
-    output = app.run()

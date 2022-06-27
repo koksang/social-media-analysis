@@ -15,8 +15,8 @@ from snscrape.modules.twitter import (
 from confluent_kafka import Producer, Consumer
 
 #
-from base.logger import LOGGER as log
-from util.helpers import convert_config, clean_str
+from core.logger import LOGGER as log
+from utils.helpers import convert_config, clean_str
 
 # NOTE:
 # inputs type
@@ -59,7 +59,7 @@ class Crawler(Task):
     scraper_id: str = field(kw_only=True, converter=clean_str)
     query: list[str] = field(
         kw_only=True,
-        converter=lambda x: [x] if not isinstance(x, list) else x,
+        # converter=lambda x: [x] if not isinstance(x, list) else x,
         validator=validators.instance_of(list),
     )
     max_results: int = field(default=10, converter=int, validator=validators.ge(1))

@@ -1,26 +1,21 @@
-"""Crawler module
-"""
+"""Crawler module"""
 
 import os
 import sys
 import ray
 
-from pathlib import Path
-from tqdm import tqdm
-
 #
-from base.model import Crawler
-from .constants import MAX_TWEETS
+from model.core import Crawler
 
 
-class App(Crawler):
+class TwitterCrawler(Crawler):
     def _get_scrapers(self) -> list[object]:
         """Get all scrapers
 
         :return list[object]: list of scrapers
         """
         scraper = self._get_scraper()
-        return [scraper(item) for item in tqdm(self.query)]
+        yield [scraper(query) for query in self.query]
 
     def run(self) -> list[object]:
         """Run app
@@ -53,9 +48,3 @@ class App(Crawler):
             scrape.remote(scraper, self.max_results) for scraper in self._get_scrapers()
         ]
         return ray.get(tasks)
-
-
-if __name__ == "__main__":
-    app = App(max_results=MAX_TWEETS)
-    output = app.run()
-    

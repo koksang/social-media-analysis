@@ -1,5 +1,6 @@
 ---
 version: "2"
+
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.1.1
@@ -87,6 +88,7 @@ services:
     image: confluentinc/cp-enterprise-control-center:7.1.1
     hostname: control-center
     container_name: control-center
+
     depends_on:
       - broker
       - schema-registry
@@ -175,3 +177,33 @@ services:
       KAFKA_REST_BOOTSTRAP_SERVERS: "broker:29092"
       KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
       KAFKA_REST_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+
+  spark:
+    image: docker.io/bitnami/spark:3
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    ports:
+      - '8080:8080'
+
+  spark-worker:
+    image: jupyter/pyspark-notebook #docker.io/bitnami/spark:3 
+    depends_on:
+      - spark
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark:7077
+      - SPARK_WORKER_MEMORY=4G
+      - SPARK_WORKER_CORES=2
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    ports:
+      - '8888:8888'
+    volumes:
+      - ../:/home/jovyan/work
+
