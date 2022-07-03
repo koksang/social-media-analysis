@@ -1,33 +1,53 @@
 """Queue module"""
 
-
+from typing import Iterable, Type
 from tqdm import tqdm
-
-#
-from core.logger import LOGGER as log
+from confluent_kafka import Producer, Consumer
+from core.logger import logger as log
 from model.core import Queue
 
 
 class KafkaQueue(Queue):
-    def _produce(self) -> None:
+    """Kafka Queue
+
+    :param _type_ Queue: _description_
+    """
+
+    def _get_runner(self) -> Type:
+        """Get queue runner
+
+        :return _type_: _description_
+        """
+        config = self.config[self.Mode.DEFAULT]
+        if self.run_mode in self.config:
+            config.update(self.config[self.run_mode])
+
+        runners = {
+            self.Mode.PRODUCER: Producer,
+            self.Mode.CONSUMER: Consumer,
+        }
+        return runners[self.run_mode](config)
+
+    def produce(self, runner: Type[Producer], messages: Iterable[dict]) -> None:
         def callback(error, message):
             if error:
-                log.error(f"Failure delivery: {error}")
+                log.error(f"Failed delivery: {error}")
             else:
                 topic, key, value = (
                     message.topic(),
                     message.key().decode("utf-8"),
                     message.value().decode("utf-8"),
                 )
-                log.info(
-                    f"Produced event to topic: {topic}, key: {key}, value: {value}"
-                )
+                log.info(f"Produced event - topic: {topic}, key: {key}, value: {value}")
 
-        for message in tqdm(self.messages):
+        for message in tqdm(messages):
             topic, key, value = message["topic"], message["key"], message["value"]
-            self.runner.produce(topic, key, value, callback=callback)
+            runner.produce(topic, key, value, callback=callback)
 
-        self.runner.flush()
+        runner.flush()
+
+    def consume(self, runner: Type[Producer], messages: Iterable[dict]) -> None:
+        pass
 
     def run(self) -> None:
         """Run app
@@ -35,5 +55,5 @@ class KafkaQueue(Queue):
         :return list[object]: list of tweet object
         """
         runner = self._get_runner()
-        if self.run_mode == self.mode.PRODUCE:
-            self._produce()
+        if self.run_mode == self.Mode.PRODUCER:
+            self.produce(runner)
