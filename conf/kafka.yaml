@@ -1,4 +1,3 @@
-
 default:
   bootstrap.servers: localhost:9092
 

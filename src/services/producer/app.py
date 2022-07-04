@@ -9,9 +9,8 @@ from core.logger import logger as log
 
 
 class App:
-    def __init__(self) -> None:
+    def __init__(self, **kwargs) -> None:
         pass
 
-
-if __name__ == "__main__":
-    pass
+    def run(self):
+        pass

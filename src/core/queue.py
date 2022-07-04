@@ -19,14 +19,14 @@ class KafkaQueue(Queue):
         :return _type_: _description_
         """
         config = self.config[self.Mode.DEFAULT]
-        if self.run_mode in self.config:
-            config.update(self.config[self.run_mode])
+        if self.mode in self.config:
+            config.update(self.config[self.mode])
 
         runners = {
             self.Mode.PRODUCER: Producer,
             self.Mode.CONSUMER: Consumer,
         }
-        return runners[self.run_mode](config)
+        return runners[self.mode](config)
 
     def produce(self, runner: Type[Producer], messages: Iterable[dict]) -> None:
         def callback(error, message):
@@ -55,5 +55,5 @@ class KafkaQueue(Queue):
         :return list[object]: list of tweet object
         """
         runner = self._get_runner()
-        if self.run_mode == self.Mode.PRODUCER:
-            self.produce(runner)
+        if self.mode == self.Mode.PRODUCER:
+            pass
