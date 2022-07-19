@@ -1,70 +1,50 @@
-"""Crawler module"""
-
-import os
-from typing import Iterable, Type
-import ray
-from snscrape.modules.twitter import (
-    TwitterSearchScraper,
-    TwitterTweetScraper,
-    TwitterUserScraper,
-)
-from model.core import Crawler
+"""Data model for source core modules
+"""
+#
+import time
+from core.logger import logger as log
+from model.base import BaseModel
+from model.crawler import Crawler as CrawlerModel
 
 
-class TwitterCrawler(Crawler):
-    """Twitter Crawler class
+class Crawler(BaseModel):
+    """Crawler class subclassing ParallelIteratorWorker
 
-    :param _type_ Crawler: _description_
+    :param _type_ Source: _description_
+    :raises ValueError: _description_
     """
 
-    def _get_scraper(self) -> Type:
-        """Get specific type of scraper
+    def __init__(self, **kwargs) -> None:
+        model = CrawlerModel(**kwargs)
+        self.mode = model.mode
+        self.query = model.query
+        self.max_limits = model.max_limits
+        self.is_stopped = model.is_stopped
 
-        :return object: _description_
+    def stop(self):
+        """Stop crawler"""
+        log.debug(f"Stopping {self.__class__}")
+        self.is_stopped = True
+        time.sleep(3)
+        log.info(f"Stopped {self.__class__}")
+
+    def run(self):
+        """Run crawler
+
+        :yield _type_: _description_
         """
-        scraper_ids = {
-            Crawler.Mode.SEARCH: TwitterSearchScraper,
-            Crawler.Mode.TWEET: TwitterTweetScraper,
-            Crawler.Mode.USER: TwitterUserScraper,
-        }
-        assert self.mode in scraper_ids, f"Unsupported scraper type: {self.mode}"
-        return scraper_ids[self.mode]
-
-    def _get_scrapers(self) -> Iterable[object]:
-        """Get all scrapers based on queries
-
-        :return Iterable[object]: list of scrapers
-        """
-        yield (self._get_scraper()(query) for query in self.query)
-
-    def run(self) -> list[object]:
-        """Run app
-
-        :return list[object]: list of tweet object
-        """
-
-        @ray.remote
-        def scrape(scraper: Type, max_limits: int) -> list[object]:
-            """Scrape tweet
-
-            :param object scraper: Scraper object
-            :param int max_limits: Max results to scrape per scraper
-            :return list[object]: list of tweet object
-            """
-            items = []
-            for i, item in enumerate(scraper.get_items()):
-                if i > max_limits:
-                    break
-                items.append(item)
-            return items
-
-        if not ray.is_initialized():
-            ray.init(
-                num_cpus=os.cpu_count(),
-                ignore_reinit_error=True,
-            )
-
-        tasks = [
-            scrape.remote(scraper, self.max_limits) for scraper in self._get_scrapers()
-        ]
-        return ray.get(tasks)
+        base_runner = self.mode.value
+        queries = iter(self.query)
+        while not self.is_stopped:
+            try:
+                query = next(queries)
+                scraper = base_runner(query)
+                count = 0
+                for item in scraper.get_items():
+                    if count > self.max_limits:
+                        break
+                    count += 1
+                    yield item
+            except StopIteration:
+                self.is_stopped = True
+                break

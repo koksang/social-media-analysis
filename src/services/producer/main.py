@@ -7,7 +7,7 @@ import click
 sys.path.insert(0, "/Users/klim/Projects/twitter-trends-crawling/src")
 
 from core.crawler import TwitterCrawler
-from core.queue import KafkaQueue
+from core.sink.queue import KafkaQueue
 from core.logger import logger as log
 from services.producer.app import App
 

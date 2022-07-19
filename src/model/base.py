@@ -1,16 +1,13 @@
 """Data model for all core modules
 """
 from abc import ABC, abstractmethod
-from typing import Iterable
 from attrs import define
-
-#
 from core.logger import logger as log
 
 # NOTE: common task model
 @define
-class Task(ABC):
-    """Task baseclass
+class BaseModel(ABC):
+    """Base class for model
 
     :param _type_ ABC: _description_
     """
@@ -19,16 +16,13 @@ class Task(ABC):
         conf = {k: getattr(self, k) for k in self.__slots__}
         log.info(f"Init config: {conf}")
 
-    @classmethod
-    def list_modes(cls, mode_classname: str = "Mode") -> Iterable[str]:
-        """Get all modes
 
-        :return list[str]: list of available modes
-        """
-        mode = getattr(cls, mode_classname)
-        keys = filter(lambda x: not x.startswith("__"), dir(mode))
-        return (getattr(mode, key) for key in keys)
+class BaseTask(ABC):
+    """Base class for task
+
+    :param _type_ ABC: _description_
+    """
 
     @abstractmethod
-    def run(self):
-        """Standard run function"""
+    def run(self, **kwargs):
+        pass
