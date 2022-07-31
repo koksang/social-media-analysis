@@ -1,6 +1,7 @@
 
 default:
   bootstrap.servers: localhost:9092
+  broker.address.family: v4
 
 consumer:
   group.id: app

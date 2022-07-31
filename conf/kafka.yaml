@@ -1,6 +1,6 @@
-
 default:
   bootstrap.servers: localhost:9092
+  enable.partition.eof: true
 
 consumer:
   group.id: app
