@@ -77,6 +77,9 @@ class Writer(BaseTask):
         for message in messages:
             item = self.model()
             for k, v in message.items():
+                if not v or v is None:
+                    continue
+
                 if isinstance(v, list):
                     getattr(item, k).extend(v)
                     continue

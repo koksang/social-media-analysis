@@ -13,7 +13,7 @@ QUERIES = (
     ["nft", "tesla", '"heat nation"'],
     ["ukraine", '"machine learning"', "dog"],
 )
-MAX_LIMITS = 100
+MAX_LIMITS = 500
 
 CONFIG = "../conf/kafka.yaml"
 TOPIC = "tweet"

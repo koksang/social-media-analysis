@@ -12,6 +12,7 @@ message Tweet {
   repeated string hashtags = 9;
   repeated string replies = 10;
   string source_label = 11;
+  int64 data_ts = 12;
 }
 
 message User {
@@ -26,4 +27,6 @@ message User {
   int32 friends_count = 9;
   int32 statuses_count = 10;
   int32 favourites_count = 11;
+  string label = 12;
+  int64 data_ts = 13;
 }

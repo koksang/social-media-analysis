@@ -24,6 +24,8 @@ class User:
     friends_count: int = field(kw_only=True, validator=instance_of(int))
     statuses_count: int = field(kw_only=True, validator=instance_of(int))
     favourites_count: int = field(kw_only=True, validator=instance_of(int))
+    label: Union[str, None] = field(kw_only=True, validator=instance_of((str, type(None))))
+    data_ts: int = field(kw_only=True, validator=instance_of(int))
 
 
 @define
@@ -53,3 +55,4 @@ class Tweet:
         converter=enlist,
         validator=instance_of(list),
     )
+    data_ts: int = field(kw_only=True, validator=instance_of(int))
