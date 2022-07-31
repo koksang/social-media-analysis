@@ -1,6 +1,6 @@
 """Queue module"""
 
-from typing import Iterable, Generator, Union
+from typing import Iterable
 from confluent_kafka import KafkaError
 from core.logger import logger as log
 from model.base import BaseTask
@@ -69,21 +69,15 @@ class Queue(BaseTask):
         :raises ValueError: _description_
         """
 
-        msg_count, failed_count, empty_count = 0, 0, 0
+        msg_count, failed_count = 0, 0
         try:
             self.runner.subscribe(topic)
             while self.running:
                 msg = self.runner.poll(1)
-                # if empty_count % 10 == 0:
-                #     log.info(f"No message found in queue")
-                #     break
-
                 if not msg:
-                    empty_count += 1
                     continue
 
                 # NOTE: reset empty message count
-                # empty_count = 0
                 msg_count += 1
                 if msg.error():
                     # NOTE: end of partition event

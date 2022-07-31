@@ -2,6 +2,7 @@
 
 import ray
 import json
+from datetime import datetime
 from attrs import asdict
 
 from core.crawler import Crawler
@@ -60,6 +61,9 @@ class App:
                     "key": "user",
                     "value": json.dumps(asdict(user)),
                 }
+                # log.info(message_tweet["value"])
+                # log.info(message_user["value"])
+                # input()
                 messages.extend([message_tweet, message_user])
                 if len(messages) % SEND_LIMIT == 0:
                     self.queue.run(messages=messages)

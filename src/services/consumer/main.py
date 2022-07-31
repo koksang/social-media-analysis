@@ -8,7 +8,7 @@ from core.queue import Queue
 from core.writer import Writer
 from core.logger import logger as log
 
-SEND_LIMIT = 20
+SEND_LIMIT = 50
 
 
 @ray.remote

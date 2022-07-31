@@ -77,6 +77,10 @@ class Writer(BaseTask):
         for message in messages:
             item = self.model()
             for k, v in message.items():
+                if isinstance(v, list):
+                    getattr(item, k).extend(v)
+                    continue
+
                 if isinstance(v, datetime):
                     v = timestamp_to_integer(v)
                 setattr(item, k, v)

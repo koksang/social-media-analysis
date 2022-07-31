@@ -20,6 +20,7 @@ def timestamp_to_integer(ts: Union[datetime, str]) -> int:
     ts_value = int(delta.total_seconds()) * 1000000 + int(delta.microseconds)
     return ts_value
 
+
 def enlist(data: Any):
     """Enlist data
 
@@ -27,6 +28,10 @@ def enlist(data: Any):
     :return _type_: _description_
     """
     if data is None:
-        return data
-    elif not isinstance(data, list):
-        return [data]
+        return []
+
+    if not isinstance(data, list):
+        if data and not isinstance(data, str):
+            data = str(data)
+        data = [data]
+    return data

@@ -32,7 +32,9 @@ class Tweet:
     url: str = field(kw_only=True, validator=instance_of(str))
     content: str = field(kw_only=True, validator=instance_of(str))
     created_timestamp: Union[datetime, int, str] = field(
-        kw_only=True, validator=instance_of(int)
+        kw_only=True,
+        converter=lambda x: timestamp_to_integer(x) if isinstance(x, datetime) else x,
+        validator=instance_of(int),
     )
     user_id: str = field(kw_only=True, validator=instance_of(str))
     retweets_count: int = field(kw_only=True, validator=instance_of(int))
@@ -43,11 +45,11 @@ class Tweet:
         kw_only=True,
         default=None,
         converter=enlist,
-        validator=instance_of((list, type(None))),
+        validator=instance_of(list),
     )
     replies: Union[list, None] = field(
         kw_only=True,
         default=None,
         converter=enlist,
-        validator=instance_of((list, type(None))),
+        validator=instance_of(list),
     )

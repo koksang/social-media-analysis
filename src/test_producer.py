@@ -13,7 +13,7 @@ QUERIES = (
     ["nft", "tesla", '"heat nation"'],
     ["ukraine", '"machine learning"', "dog"],
 )
-MAX_LIMITS = 200
+MAX_LIMITS = 100
 
 CONFIG = "../conf/kafka.yaml"
 TOPIC = "tweet"
@@ -38,7 +38,7 @@ for query in QUERIES:
         max_limits=MAX_LIMITS,
     )
     producers.append(
-        Producer.options(num_cpus=2).remote(
+        Producer.options(num_cpus=1, memory=250 * 1024 * 1024).remote(
             crawler_conf=crawler_conf,
             queue_conf=queue_conf,
         )
@@ -46,6 +46,5 @@ for query in QUERIES:
 
 tasks = [producer.run.remote() for producer in producers]
 results = ray.get(tasks)
-# print(output)
 
 ray.shutdown()
