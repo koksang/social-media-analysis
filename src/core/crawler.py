@@ -8,7 +8,7 @@ from model.crawler import Crawler as CrawlerModel
 
 
 class Crawler(BaseModel):
-    """Crawler class subclassing ParallelIteratorWorker
+    """Crawler class
 
     :param _type_ Source: _description_
     :raises ValueError: _description_
@@ -35,6 +35,7 @@ class Crawler(BaseModel):
         """
         base_runner = self.mode.value
         queries = iter(self.query)
+        log.info(f"Running crawler for {self.query}")
         while not self.is_stopped:
             try:
                 query = next(queries)

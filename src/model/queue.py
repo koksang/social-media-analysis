@@ -36,8 +36,8 @@ class Queue(BaseModel):
     class Mode(Enum):
         """Constant class for Queue Mode"""
 
-        PRODUCER = Producer
-        CONSUMER = Consumer
+        PRODUCER = producer = Producer
+        CONSUMER = consumer = Consumer
         # DEFAULT = default = "default"
 
     config: Union[dict, str] = field(kw_only=True, converter=convert_config)
@@ -46,7 +46,6 @@ class Queue(BaseModel):
         converter=lambda x: getattr(Queue.Mode, x.upper()) if isinstance(x, str) else x,
         validator=validators.in_(Mode),
     )
-    topic: Union[list[str], None] = field(kw_only=True, default=None)
 
     @config.validator
     def check_config(self, _, value):

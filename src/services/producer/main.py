@@ -1,30 +1,75 @@
 """Producer service"""
 
-import os
-import sys
-import click
+import ray
+import json
+from attrs import asdict
 
-sys.path.insert(0, "/Users/klim/Projects/twitter-trends-crawling/src")
-
-from core.crawler import TwitterCrawler
-from core.sink.queue import KafkaQueue
+from core.crawler import Crawler
+from core.queue import Queue
+from model.twitter import Tweet, User
 from core.logger import logger as log
-from services.producer.app import App
+
+SEND_LIMIT = 200
 
 
-@click.command()
-@click.argument("mode", type=click.Choice(TwitterCrawler.get_modes(), case_sensitive=False))  # type: ignore
-@click.option(
-    "--max_limits",
-    "-m",
-    type=int,
-    help="Maximum limits to crawl",
-    default=10,
-)
-def main(**kwargs) -> None:
-    app = App(**kwargs)
-    app.run()
+@ray.remote
+class App:
+    def __init__(self, crawler_conf: dict, queue_conf: dict, **kwargs) -> None:
+        self.crawler = Crawler(**crawler_conf)
+        self.queue = Queue(**queue_conf, mode="producer")
 
+    def run(self):
+        """Run producer app"""
+        messages = []
+        for item in self.crawler.run():
+            try:
+                tweet = Tweet(
+                    id=str(item.id),
+                    url=item.url,
+                    content=item.content,
+                    created_timestamp=item.date,
+                    user_id=str(item.user.id),
+                    retweets_count=item.retweetCount,
+                    quote_tweets_count=item.quoteCount,
+                    likes_count=item.likeCount,
+                    hashtags=item.hashtags,
+                    replies=item.inReplyToTweetId,
+                    source_label=item.sourceLabel,
+                )
+                user = User(
+                    id=str(item.user.id),
+                    username=item.user.username,
+                    display_name=item.user.displayname,
+                    description=item.user.description,
+                    created_timestamp=item.user.created,
+                    verified=item.user.verified,
+                    location=item.user.location,
+                    followers_count=item.user.followersCount,
+                    friends_count=item.user.friendsCount,
+                    statuses_count=item.user.statusesCount,
+                    favourites_count=item.user.favouritesCount,
+                )
+                message_tweet = {
+                    "topic": "tweet",
+                    "key": "tweet",
+                    "value": json.dumps(asdict(tweet)),
+                }
 
-if __name__ == "__main__":
-    main()
+                message_user = {
+                    "topic": "user",
+                    "key": "user",
+                    "value": json.dumps(asdict(user)),
+                }
+                messages.extend([message_tweet, message_user])
+                if len(messages) % SEND_LIMIT == 0:
+                    self.queue.run(messages=messages)
+                    messages = []
+            except Exception as msg:
+                log.error(f"Failed to ingest: {item}, error: {msg}")
+                continue
+
+        if messages:
+            self.queue.run(messages=messages)
+            messages = []
+
+        log.info(f"{self} completed!")
