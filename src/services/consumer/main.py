@@ -1,14 +1,15 @@
 """Consumer service"""
 
-import ray
+import time
 import json
+import ray
 from typing import Iterable
 
 from core.queue import Queue
 from core.writer import Writer
 from core.logger import logger as log
 
-SEND_LIMIT = 100
+SEND_LIMIT = 300
 
 
 @ray.remote
@@ -32,6 +33,7 @@ class App:
                     self.writer.run(messages=messages)
                     log.info(f"Consumed {len(messages)} nrows")
                     messages = []
+                    time.sleep(0.5)
 
             except Exception as msg:
                 log.error(f"Failed to consume: {message}, error: {msg}")

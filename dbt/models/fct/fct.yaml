@@ -1,0 +1,7 @@
+version: 2
+
+models:
+  - name: fact
+    description: "fact tables"
+    database: "{{ env_var('GOOGLE_PROJECT_ID') }}"
+    schema: fct

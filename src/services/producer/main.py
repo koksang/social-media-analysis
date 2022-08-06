@@ -23,7 +23,7 @@ class App:
     def run(self):
         """Run producer app"""
         messages = []
-        for item in self.crawler.run():
+        for (item, entity) in self.crawler.run():
             try:
                 tweet = Tweet(
                     id=str(item.id),
@@ -37,6 +37,7 @@ class App:
                     hashtags=item.hashtags,
                     replies=item.inReplyToTweetId,
                     source_label=item.sourceLabel,
+                    entity=entity,
                     data_ts=timestamp_to_integer(
                         datetime.now().astimezone(timezone.utc)
                     ),

@@ -6,14 +6,15 @@ from services.producer.main import App as Producer
 from services.consumer.main import App as Consumer
 
 MODE = "search"
-QUERIES = (
-    ['"data engineering"', "axwell", "bitcoin"],
-    ['"elon musk"', "remote", "mlops"],
-    ["ergo", "palantir", '"swedish house mafia"'],
-    ["nft", "tesla", '"heat nation"'],
-    ["ukraine", '"machine learning"', "dog"],
+ENTITIES = (
+    ["cryptocurrency", "bitcoin", "coinbase"],
+    ["web3", "defi", "nft", '"nansen ai"'],
+    ["eth", "ethereum", '"vitalik buterin"'],
+    ['"charles hoskinson"', "ergo", "cardano", "ada", "erg"],
+    ['"elon musk"', "solana", "sol", "matic"],
+    ["bnb", "binance", '"binance smart chain"', '"binance coin"', '"cz peng"'],
 )
-MAX_LIMITS = 500
+MAX_LIMITS = 2000
 
 CONFIG = "../conf/kafka.yaml"
 TOPIC = "tweet"
@@ -31,10 +32,10 @@ bq_conf = dict(
 )
 
 producers = []
-for query in QUERIES:
+for entity in ENTITIES:
     crawler_conf = dict(
         mode=MODE,
-        query=query,
+        entity=entity,
         max_limits=MAX_LIMITS,
     )
     producers.append(

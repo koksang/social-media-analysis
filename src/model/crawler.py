@@ -33,6 +33,6 @@ class Crawler(BaseModel):
         else x,
         validator=validators.in_(Mode),
     )
-    query: list[str] = field(kw_only=True, validator=validators.instance_of(list))
+    entity: list[str] = field(kw_only=True, validator=validators.instance_of(list))
     max_limits: int = field(default=10, converter=int, validator=validators.ge(1))
     is_stopped: bool = field(default=False)

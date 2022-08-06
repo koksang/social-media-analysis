@@ -12,7 +12,8 @@ message Tweet {
   repeated string hashtags = 9;
   repeated string replies = 10;
   string source_label = 11;
-  int64 data_ts = 12;
+  string entity = 12;
+  int64 data_ts = 13;
 }
 
 message User {
