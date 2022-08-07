@@ -17,7 +17,7 @@ class Crawler(BaseModel):
     def __init__(self, **kwargs) -> None:
         model = CrawlerModel(**kwargs)
         self.mode = model.mode
-        self.query = model.query
+        self.entity = model.entity
         self.max_limits = model.max_limits
         self.is_stopped = model.is_stopped
 
@@ -34,18 +34,18 @@ class Crawler(BaseModel):
         :yield _type_: _description_
         """
         base_runner = self.mode.value
-        queries = iter(self.query)
-        log.info(f"Running crawler for {self.query}")
+        entities = iter(self.entity)
+        log.info(f"Running crawler for {self.entity}")
         while not self.is_stopped:
             try:
-                query = next(queries)
-                scraper = base_runner(query)
+                entity = next(entities)
+                scraper = base_runner(entity)
                 count = 0
                 for item in scraper.get_items():
                     if count > self.max_limits:
                         break
                     count += 1
-                    yield item
+                    yield (item, entity)
             except StopIteration:
                 self.is_stopped = True
                 break

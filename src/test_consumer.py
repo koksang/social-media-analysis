@@ -3,9 +3,7 @@
 import ray
 from services.consumer.main import App as Consumer
 
-MODE = "search"
 TOPICS = ["tweet", "user"]
-MAX_LIMITS = 50
 
 CONFIG = "../conf/kafka.yaml"
 

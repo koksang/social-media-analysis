@@ -2,13 +2,14 @@
 
 import ray
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from attrs import asdict
 
 from core.crawler import Crawler
 from core.queue import Queue
 from model.twitter import Tweet, User
 from core.logger import logger as log
+from utils.helpers import timestamp_to_integer
 
 SEND_LIMIT = 200
 
@@ -22,12 +23,12 @@ class App:
     def run(self):
         """Run producer app"""
         messages = []
-        for item in self.crawler.run():
+        for (item, entity) in self.crawler.run():
             try:
                 tweet = Tweet(
                     id=str(item.id),
                     url=item.url,
-                    content=item.content,
+                    content=item.renderedContent,
                     created_timestamp=item.date,
                     user_id=str(item.user.id),
                     retweets_count=item.retweetCount,
@@ -36,6 +37,10 @@ class App:
                     hashtags=item.hashtags,
                     replies=item.inReplyToTweetId,
                     source_label=item.sourceLabel,
+                    entity=entity,
+                    data_ts=timestamp_to_integer(
+                        datetime.now().astimezone(timezone.utc)
+                    ),
                 )
                 user = User(
                     id=str(item.user.id),
@@ -49,22 +54,23 @@ class App:
                     friends_count=item.user.friendsCount,
                     statuses_count=item.user.statusesCount,
                     favourites_count=item.user.favouritesCount,
+                    label=item.user.label.longDescription if item.user.label else None,
+                    data_ts=timestamp_to_integer(
+                        datetime.now().astimezone(timezone.utc)
+                    ),
                 )
                 message_tweet = {
                     "topic": "tweet",
                     "key": "tweet",
                     "value": json.dumps(asdict(tweet)),
                 }
-
                 message_user = {
                     "topic": "user",
                     "key": "user",
                     "value": json.dumps(asdict(user)),
                 }
-                # log.info(message_tweet["value"])
-                # log.info(message_user["value"])
-                # input()
                 messages.extend([message_tweet, message_user])
+
                 if len(messages) % SEND_LIMIT == 0:
                     self.queue.run(messages=messages)
                     messages = []
