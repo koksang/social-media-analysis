@@ -5,7 +5,7 @@ with bnb_tweets as (
     from 
         {{ source("fct", "tweets") }}
     where 
-        regexp_contains(lower(content), r"\/(binance|bnb|binance coin|binance smart chain|bsc)\/")
+        regexp_contains(lower(content), r"(bnb|binance coin|binance smart chain|bsc)")
         and not contains_substr(entity, "bnb")
 
 )

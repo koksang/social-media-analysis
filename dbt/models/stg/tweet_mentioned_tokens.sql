@@ -23,7 +23,7 @@ from
     tweets
     , unnest([
         if( contains_substr(content, "ada") or contains_substr(content, "cardano"), "ada", null)
-        , if ( regexp_contains(lower(content), r"\/(binance|bnb|binance coin|binance smart chain|bsc)\/"), "bnb", null)
+        , if ( regexp_contains(lower(content), r"(bnb|binance coin|binance smart chain|bsc)"), "bnb", null)
         , if ( contains_substr(content, "btc") or contains_substr(content, "bitcoin"), "btc", null)
         , if ( contains_substr(content, "erg") or contains_substr(content, "ergo"), "erg", null)
         , if ( contains_substr(content, "eth") or contains_substr(content, "ethereum"), "eth", null)
