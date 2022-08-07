@@ -27,6 +27,7 @@ pyspark = { extras = ["sql", "pandas_on_spark"], version = "^3.3.0" }
 click = "<=8.0.4"
 google-cloud-bigquery-storage = "^2.14.1"
 protobuf = "^3.20.0"
+hydra-colorlog = "^1.2.0"
 
 [tool.poetry.dev-dependencies]
 

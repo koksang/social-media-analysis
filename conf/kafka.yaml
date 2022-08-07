@@ -1,9 +1,0 @@
-default:
-  bootstrap.servers: localhost:9092
-  enable.partition.eof: true
-
-consumer:
-  group.id: app
-  # 'auto.offset.reset=earliest' to start reading from the beginning of
-  # the topic if no committed offsets exist.
-  auto.offset.reset: earliest

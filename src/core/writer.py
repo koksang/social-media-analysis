@@ -98,12 +98,12 @@ class Writer(BaseTask):
             AppendRowsRequest(write_stream=self.stream.name, proto_rows=data)
         )
 
-        total_count, failed_count = len(items), 0
+        total_count = len(items)
         for resp in self.client.append_rows(requests=iter(requests)):
-            if resp.error or resp.row_errors:
-                failed_count += 1
-                log.error(resp)
-            else:
-                log.debug(resp)
+            log.debug(resp)
+            # TODO: find out how to check for status in resp.error (google.rpc.status_pb2.Status)
+            # if resp.error:
+            #     failed_count += 1
+            #     log.error(resp.row_errors)
 
-        log.info(f"Written {total_count} total rows, {failed_count} failed")
+        log.info(f"Processed {total_count} total rows")

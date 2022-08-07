@@ -1,4 +1,4 @@
 """Relative import services"""
 
-from .consumer.main import App as Consumer
-from .producer.main import App as Producer
+from .consumer.app import App as Consumer
+from .producer.app import App as Producer

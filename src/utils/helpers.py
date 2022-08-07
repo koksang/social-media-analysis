@@ -1,9 +1,9 @@
 """Helper functions"""
 
+import pytz
 from typing import Union, Any
 from dateutil.parser import parse
-from datetime import datetime, timezone
-import pytz
+from datetime import datetime, timezone, timedelta
 
 
 def timestamp_to_integer(ts: Union[datetime, str]) -> int:
@@ -35,3 +35,20 @@ def enlist(data: Any):
             data = str(data)
         data = [data]
     return data
+
+
+def append_start_end_date(entity: str, start_date: Union[str, None] = None):
+    """Append start end date to search entity
+
+    :param str entity: _description_
+    :param Union[str, None] start_date: _description_, defaults to None
+    :return str: search entity
+    """
+    dt_now = datetime.now().astimezone(pytz.UTC)
+    if start_date:
+        start = parse(start_date).strftime("%Y-%m-%d")
+    else:
+        start = (dt_now - timedelta(days=1)).strftime("%Y-%m-%d")
+
+    end = dt_now.strftime("%Y-%m-%d")
+    return [f"{entity} until:{end} since:{start}"]
