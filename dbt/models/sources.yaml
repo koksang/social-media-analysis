@@ -6,8 +6,8 @@ sources:
     schema: raw
 
     tables:
-      - name: tweets
-      - name: users
+      - name: tweet
+      - name: user
 
   - name: fct
     database: "{{ env_var('GOOGLE_PROJECT_ID') }}"

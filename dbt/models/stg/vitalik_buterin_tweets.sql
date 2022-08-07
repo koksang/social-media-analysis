@@ -3,17 +3,17 @@ with vitalik_buterin_tweets as (
     select 
         * except(entity)
     from 
-        {{ ref("tweets") }}
+        {{ source("fct", "tweets") }}
     where 
         ( contains_substr(content, "vitalik") or contains_substr(content, "vitalik buterin") )
-        and entity not in ('"vitalik buterin"')
+        and not contains_substr(entity, "vitalik")
 
 )
 
 , base as (
 
     select * except(entity) from {{ source("fct", "tweets") }}
-    where entity in ('"vitalik buterin"')
+    where contains_substr(entity, "vitalik")
 
 )
 

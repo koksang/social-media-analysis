@@ -3,17 +3,17 @@ with defi_tweets as (
     select 
         * except(entity)
     from 
-        {{ ref("tweets") }}
+        {{ source("fct", "tweets") }}
     where 
-        ( contains_substr(content, "defi") )
-        and entity not in ("defi")
+        contains_substr(content, "defi")
+        and not contains_substr(entity, "defi")
 
 )
 
 , base as (
 
     select * except(entity) from {{ source("fct", "tweets") }}
-    where entity in ("defi")
+    where contains_substr(entity, "defi")
 
 )
 

@@ -6,14 +6,14 @@ with ada_tweets as (
         {{ source("fct", "tweets") }}
     where 
         ( contains_substr(content, "ada") or contains_substr(content, "cardano") )
-        and entity not in ("ada", "cardano")
+        and not contains_substr(entity, "ada")
 
 )
 
 , base as (
 
     select * except(entity) from {{ source("fct", "tweets") }}
-    where entity in ("ada", "cardano")
+    where contains_substr(entity, "ada")
 
 )
 

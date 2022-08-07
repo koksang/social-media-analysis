@@ -6,14 +6,14 @@ with matic_tweets as (
         {{ source("fct", "tweets") }}
     where
         contains_substr(content, "matic")
-        and entity not in ("matic")
+        and not contains_substr(entity, "matic")
 
 )
 
 , base as (
 
     select * except(entity) from {{ source("fct", "tweets") }}
-    where entity in ("matic")
+    where contains_substr(entity, "matic")
 
 )
 

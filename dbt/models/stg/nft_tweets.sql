@@ -5,15 +5,15 @@ with btc_tweets as (
     from 
         {{ source("fct", "tweets") }}
     where 
-        ( contains_substr(content, "btc") or contains_substr(content, "bitcoin") )
-        and not contains_substr(entity, "btc")
+        ( contains_substr(content, "nft") or contains_substr(content, "nfts") )
+        and not contains_substr(entity, "nft")
 
 )
 
 , base as (
 
     select * except(entity) from {{ source("fct", "tweets") }}
-    where contains_substr(entity, "btc")
+    where contains_substr(entity, "nft")
 
 )
 

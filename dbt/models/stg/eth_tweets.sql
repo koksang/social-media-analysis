@@ -6,14 +6,14 @@ with eth_tweets as (
         {{ source("fct", "tweets") }}
     where 
         ( contains_substr(content, "eth") or contains_substr(content, "ethereum") )
-        and entity not in ("eth", "ethereum")
+        and not contains_substr(entity, "eth")
 
 )
 
 , base as (
 
     select * except(entity) from {{ source("fct", "tweets") }}
-    where entity in ("eth", "ethereum")
+    where contains_substr(entity, "eth")
 
 )
 

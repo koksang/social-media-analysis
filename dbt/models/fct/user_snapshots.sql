@@ -1,9 +1,6 @@
 {{
     config(
-        unique_key="id",
-        partition_key={ 
-            "field": "data_ts", "data_type": "timestamp", "granularity": "month" 
-        }
+        unique_key="id"
     )
 }}
 
@@ -12,12 +9,12 @@ with users as (
     select 
         
         *
-        , rank() over(
+        , row_number() over(
             partition by id order by timestamp_trunc(data_ts, DAY, "UTC") desc
-        ) rank
+        ) row_number
 
     from 
-        {{ source("raw", "users") }}
+        {{ source("raw", "user") }}
     {% if is_incremental() %}
     -- this filter will only be applied on an incremental run
     where 
@@ -29,9 +26,9 @@ with users as (
 )
 
 select 
-    * except(rank)
+    * except(row_number)
 from 
     users
 where 
-    rank = 1
+    row_number = 1
 

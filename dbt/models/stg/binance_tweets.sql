@@ -6,14 +6,14 @@ with bnb_tweets as (
         {{ source("fct", "tweets") }}
     where 
         regexp_contains(lower(content), r"\/(binance|bnb|binance coin|binance smart chain|bsc)\/")
-        and entity not in ("bnb", '"binance coin"', '"binance smart chain"', "bsc", "binance")
+        and not contains_substr(entity, "bnb")
 
 )
 
 , base as (
 
     select * except(entity) from {{ source("fct", "tweets") }}
-    where entity in ("bnb", '"binance coin"', '"binance smart chain"', "bsc", "binance")
+    where contains_substr(entity, "bnb")
 
 )
 

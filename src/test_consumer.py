@@ -3,7 +3,7 @@
 import ray
 from services.consumer.main import App as Consumer
 
-TOPICS = ["tweets", "users"]
+TOPICS = ["tweet", "user"]
 
 CONFIG = "../conf/kafka.yaml"
 
