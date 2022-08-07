@@ -1,7 +1,7 @@
 """Testing module"""
 
 import ray
-from services.consumer.main import App as Consumer
+from services.consumer.app import App as Consumer
 
 TOPICS = ["tweet", "user"]
 

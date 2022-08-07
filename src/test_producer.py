@@ -3,7 +3,7 @@
 import ray
 import pytz
 from datetime import datetime as dt, timedelta as td
-from services.producer.main import App as Producer
+from services.producer.app import App as Producer
 
 MODE = "search"
 
@@ -80,7 +80,6 @@ ENTITIES = [KOLS, TOKENS, TOPICS]
 MAX_LIMITS = 1000
 
 CONFIG = "../conf/kafka.yaml"
-TOPIC = "tweet"
 PROJECT, DATASET, TABLE = "area51-lab", "raw", "test"
 
 if not ray.is_initialized():

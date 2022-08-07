@@ -1,0 +1,53 @@
+producer:
+  mode: search
+  max_limits: 2000
+consumer:
+  topics:
+  - tweet
+  - user
+entity:
+- '"elon musk" (#elonmusk OR #elon)'
+- '"cz peng" (#czbinance OR #cz)'
+- '"vitalik buterin" (#vitalik OR #vitalikbuterin)'
+- '"charles hoskinson" (#charleshoskinson)'
+- '"michael saylor" (#michaelsaylor)'
+- '"jack dorsey" (#jackdorsey)'
+- '"brian amstrong" (#brianamstrong)'
+- '"sam bankman" OR "sbf" (#sbf OR #sambankman)'
+- '"cathy wood" (#cathywood)'
+- '"justin sun" (#justinsun)'
+- '"btc" OR "bitcoin" (#btc OR #bitcoin)'
+- '"eth" OR "ethereum" (#eth OR #ethereum)'
+- '"ada" OR "cardano" (#ada OR #cardano)'
+- '"erg" OR "ergo" (#erg OR #ergo)'
+- '"bnb" OR "binance coin" OR "bsc" OR "binance smart chain" (#bnb OR #bsc OR #binancecoin
+  OR #binancesmartchain)'
+- '"sol" OR "solana" (#sol OR #solana)'
+- '"matic" OR "polygon" (#matic OR #polygon)'
+- '"avax" OR "avalanche" (#avax OR #avalanche)'
+- '"doge" OR "dogecoin" (#doge OR #dogecoin)'
+- '"shib" OR "shibatoken" (#shib OR #shibatoken)'
+- '"chainlink" (#link OR #chainlink)'
+- '"xrp" OR "ripple" (#xrp OR #ripple)'
+- '"crypto" OR "cryptocurrency" (#crypto OR #cryptocurrency)'
+- '"blockchain" (#blockchain)'
+- '"web3" (#web3)'
+- '"nft" OR "nfts" OR "metaverse" (#nft OR #nfts OR #metaverse)'
+- '"defi" OR "gamefi" (#defi OR #gamefi)'
+- '"dao" (#dao)'
+- '"coinbase" OR "$COIN" (#coin OR #coinbase)'
+- '"binance" OR "binance.us" (#binance)'
+- '"ftx" OR "ftx.us" (#ftx)'
+- '"ark" OR "ark invest" (#ark OR #arkinvest)'
+- '"nansen ai" (#nansenai)'
+kafka:
+  default:
+    bootstrap.servers: localhost:9092
+    enable.partition.eof: true
+  consumer:
+    group.id: app
+    auto.offset.reset: earliest
+bigquery:
+  project: area51-lab
+  dataset: raw
+run_mode: consumer

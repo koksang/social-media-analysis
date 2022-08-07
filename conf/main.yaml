@@ -1,0 +1,9 @@
+defaults:
+  - producer: append
+  - consumer: append
+  - entity: crypto
+  - kafka: local
+  - bigquery: base
+  - override hydra/job_logging: colorlog
+  - override hydra/hydra_logging: colorlog
+run_mode: producer
