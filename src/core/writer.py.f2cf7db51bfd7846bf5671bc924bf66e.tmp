@@ -101,7 +101,7 @@ class Writer(BaseTask):
         total_count = len(items)
         for resp in self.client.append_rows(requests=iter(requests)):
             log.debug(resp)
-            # TODO: find out how to check for status in resp.error (google.)
+            # TODO: find out how to check for status in resp.error (google.rpc.status_pb2.Status)
             # if resp.error:
             #     failed_count += 1
             #     log.error(resp.row_errors)
