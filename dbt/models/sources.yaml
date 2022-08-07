@@ -1,0 +1,18 @@
+version: 2
+
+sources:
+  - name: raw
+    database: "{{ env_var('GOOGLE_PROJECT_ID') }}"
+    schema: raw
+
+    tables:
+      - name: tweet
+      - name: user
+
+  - name: fct
+    database: "{{ env_var('GOOGLE_PROJECT_ID') }}"
+    schema: fct
+
+    tables:
+      - name: tweets
+      - name: user_snapshots
