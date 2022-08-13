@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "twitter-trends-crawling"
+name = "social-media-analysis"
 version = "0.1.0"
-description = "End-to-end data pipeline for Twitter trends crawling"
+description = "End-to-end data pipeline for social media analysis"
 authors = ["koksang <koksanggl@gmail.com>"]
 license = "MIT License"
 
