@@ -1,3 +1,4 @@
 mode: search
-start_date: 1970-1-1
+start_date: null
+end_date: null
 max_limits: 5000

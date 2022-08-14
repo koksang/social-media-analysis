@@ -2,11 +2,12 @@
 
 import ray
 import hydra
+from dateutil.parser import parse
 from omegaconf import DictConfig, OmegaConf
 from services.producer.app import App as Producer
 from services.consumer.app import App as Consumer
 from core.logger import logger as log
-from utils.helpers import append_start_end_date
+from utils.helpers import init_start_end_date, build_search_entities
 
 
 @hydra.main(version_base=None, config_path="../conf", config_name="main")
@@ -15,38 +16,43 @@ def main(conf: DictConfig) -> None:
 
     run_mode = conf.run_mode.lower()
     producer_conf = OmegaConf.to_object(conf.producer)
-    consumer_conf = OmegaConf.to_object(conf.consumer)
-    entities = conf.entity
-    kafka_conf = OmegaConf.to_object(conf.kafka)
-    bigquery_conf = OmegaConf.to_object(conf.bigquery)
-
-    start_date = None
-    if "start_date" in producer_conf:
-        start_date = producer_conf["start_date"]
+    start_date, end_date = init_start_end_date()
 
     if not ray.is_initialized():
         ray.init()
 
     actors = []
     if run_mode == "producer":
-        for entity in entities:
+        if "start_date" in conf.producer.keys() and conf.producer.start_date:
+            start_date = parse(conf.producer.start_date).date()
+            producer_conf.pop("start_date", None)
+        if "end_date" in conf.producer.keys() and conf.producer.end_date:
+            end_date = parse(conf.producer.end_date).date()
+            producer_conf.pop("end_date", None)
+
+        log.info(f"Running with start_date: {start_date}, end_date: {end_date}")
+        search_entities = build_search_entities(conf.entity, start_date, end_date)
+
+        exit()
+
+        for entity in search_entities:
             crawler_conf = producer_conf.copy()
-            crawler_conf["entity"] = append_start_end_date(entity, start_date)
+            crawler_conf.update({"entity": entity})
             actors.append(
                 Producer.options(memory=150 * 1024 * 1024).remote(
                     crawler_conf=crawler_conf,
-                    queue_conf=dict(config=kafka_conf),
+                    queue_conf=dict(config=OmegaConf.to_object(conf.kafka)),
                 )
             )
-    elif run_mode == "consumer": 
-        for topic in consumer_conf["topics"]:
-            bq_conf = bigquery_conf.copy()
-            bq_conf["table"], bq_conf["model"] = topic, topic
+    elif run_mode == "consumer":
+        for topic in conf.consumer.topics:
+            bq_conf = OmegaConf.to_object(conf.bigquery).copy()
+            bq_conf.update({"table": topic, "model": topic})
             actors.append(
-                Consumer.options(num_cpus=2, memory=250 * 1024 * 1024).remote(
+                Consumer.options(memory=250 * 1024 * 1024).remote(
                     topic=[topic],
                     bq_conf=bq_conf,
-                    queue_conf=dict(config=kafka_conf),
+                    queue_conf=dict(config=OmegaConf.to_object(conf.kafka)),
                 )
             )
     else:
