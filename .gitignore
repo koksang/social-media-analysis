@@ -1,6 +1,7 @@
 # folder
 .env
 outputs
+airflow
 
 # files
 unittests.cfg

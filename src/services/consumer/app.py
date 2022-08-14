@@ -9,7 +9,7 @@ from core.queue import Queue
 from core.writer import Writer
 from core.logger import logger as log
 
-SEND_LIMIT = 200
+SEND_LIMIT = 500
 
 
 @ray.remote
@@ -31,7 +31,7 @@ class App:
 
                 if len(messages) % SEND_LIMIT == 0:
                     self.writer.run(messages=messages)
-                    log.info(f"Consumed {len(messages)} nrows")
+                    log.debug(f"Consumed {len(messages)} nrows")
                     messages = []
                     time.sleep(0.5)
 
@@ -41,7 +41,7 @@ class App:
 
         if messages:
             self.writer.run(messages=messages)
-            log.info(f"Consumed {len(messages)} nrows")
+            log.debug(f"Consumed {len(messages)} nrows")
             messages = []
 
         log.info(f"{self} completed!")

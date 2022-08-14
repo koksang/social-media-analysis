@@ -1,6 +1,7 @@
 """Helper functions"""
 
 import pytz
+from random import shuffle
 from typing import Union, Any
 from dateutil.parser import parse
 from datetime import datetime, timezone, timedelta, date
@@ -55,6 +56,8 @@ def build_search_entities(
     :raises ValueError: if start_date is not >= end_date
     :return _type_: list
     """
+    # NOTE: shuffle the entities & check dates
+    shuffle(entities)
     if start_date >= end_date:
         raise ValueError(
             f"start_date has to be >= end_date by at least 1 day difference"
@@ -108,5 +111,5 @@ def init_start_end_date():
     """
     date_now = datetime.now().astimezone(pytz.UTC).date()
     start_date, end_date = (date_now - timedelta(days=1)), date_now
-    log.info(f"Initialized start, end date with {start_date}, {end_date}")
+    log.info(f"Initialized start & end date to {start_date}, {end_date}")
     return start_date, end_date
