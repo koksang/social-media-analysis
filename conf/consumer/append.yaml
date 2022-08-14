@@ -1,3 +1,4 @@
+n_workers_per_topic: 2
 topics:
   - tweet
   - user

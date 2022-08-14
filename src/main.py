@@ -16,6 +16,7 @@ def main(conf: DictConfig) -> None:
 
     run_mode = conf.run_mode.lower()
     producer_conf = OmegaConf.to_object(conf.producer)
+    kafka_conf = OmegaConf.to_object(conf.kafka)
     start_date, end_date = init_start_end_date()
 
     if not ray.is_initialized():
@@ -39,20 +40,22 @@ def main(conf: DictConfig) -> None:
             actors.append(
                 Producer.options(memory=150 * 1024 * 1024).remote(
                     crawler_conf=crawler_conf,
-                    queue_conf=dict(config=OmegaConf.to_object(conf.kafka)),
+                    queue_conf=dict(config=kafka_conf),
                 )
             )
     elif run_mode == "consumer":
         for topic in conf.consumer.topics:
             bq_conf = OmegaConf.to_object(conf.bigquery).copy()
             bq_conf.update({"table": topic, "model": topic})
-            actors.append(
-                Consumer.options(memory=250 * 1024 * 1024).remote(
-                    topic=[topic],
-                    bq_conf=bq_conf,
-                    queue_conf=dict(config=OmegaConf.to_object(conf.kafka)),
+            # NOTE: to create more parallel consumers
+            for _ in range(conf.consumer.n_workers_per_topic):
+                actors.append(
+                    Consumer.options(memory=150 * 1024 * 1024).remote(
+                        topic=[topic],
+                        bq_conf=bq_conf,
+                        queue_conf=dict(config=kafka_conf),
+                    )
                 )
-            )
     else:
         raise ValueError(f"Unsupported run_mode: {run_mode}")
 

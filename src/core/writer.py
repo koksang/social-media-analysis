@@ -23,7 +23,7 @@ class Writer(BaseTask):
         self.project = project
         self.dataset = dataset
         self.table = table
-        self.model = self.get_model(model.capitalize())
+        self.model = self.get_model(model)
         self.client = None
         self.stream = None
 
@@ -34,6 +34,7 @@ class Writer(BaseTask):
         :raises AttributeError: If model name is not found/ supported
         :return _type_: _description_
         """
+        model = model.capitalize()
         if not hasattr(BQ_MODEL, model):
             raise AttributeError("Unsupported model: {model} in BQ model")
 
@@ -98,7 +99,7 @@ class Writer(BaseTask):
             AppendRowsRequest(write_stream=self.stream.name, proto_rows=data)
         )
 
-        total_count = len(items)
+        total_count, failed_count = len(items), 0
         for resp in self.client.append_rows(requests=iter(requests)):
             log.debug(resp)
             # TODO: find out how to check for status in resp.error (google.rpc.status_pb2.Status)
@@ -106,4 +107,4 @@ class Writer(BaseTask):
             #     failed_count += 1
             #     log.error(resp.row_errors)
 
-        log.info(f"Processed {total_count} total rows")
+        log.info(f"Processed total messages: {total_count}, failed: {failed_count}")
