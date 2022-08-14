@@ -33,13 +33,24 @@ clean-targets:         # directories to be removed by `dbt clean`
 # using the `{{ config(...) }}` macro.
 models:
   twitter:
-    fct:
-      +materialized: incremental
-      +partition_by:
-        field: data_ts
-        data_type: timestamp
-        granularity: month
-    dim:
-      +materialized: table
-    stg:
+    base:
+      +schema: staging
       +materialized: view
+    staging:
+      +schema: staging
+      +materialized: view
+    intermediate:
+      +schema: intermediate
+      +materialized: view
+    marts:
+      +schema: marts
+
+      fct:
+        +materialized: incremental
+        +partition_by:
+          field: data_ts
+          data_type: timestamp
+          granularity: month
+      
+      dim:
+        +materialized: view

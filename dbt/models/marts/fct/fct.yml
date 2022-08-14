@@ -1,0 +1,7 @@
+version: 2
+
+models:
+  - name: marts
+    description: "fact tables"
+    database: "{{ env_var('GOOGLE_PROJECT_ID') }}"
+    schema: marts

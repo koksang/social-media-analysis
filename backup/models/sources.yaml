@@ -9,10 +9,10 @@ sources:
       - name: tweet
       - name: user
 
-  - name: marts
+  - name: fct
     database: "{{ env_var('GOOGLE_PROJECT_ID') }}"
-    schema: marts
+    schema: fct
 
     tables:
-      - name: fct_tweets
-      - name: fct_users
+      - name: tweets
+      - name: user_snapshots

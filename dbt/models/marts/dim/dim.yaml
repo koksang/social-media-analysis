@@ -1,0 +1,7 @@
+version: 2
+
+models:
+  - name: dimension
+    description: "dimension tables/ views"
+    database: "{{ env_var('GOOGLE_PROJECT_ID') }}"
+    schema: marts
