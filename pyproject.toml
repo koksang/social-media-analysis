@@ -8,7 +8,6 @@ license = "MIT License"
 [tool.poetry.dependencies]
 python = ">=3.9, <3.11"
 hydra-core = "^1.2.0"
-httpx = "^0.23.0"
 pathlib = "^1.0.1"
 attrs = "^21.4.0"
 confluent-kafka = "^1.9.0"
@@ -23,7 +22,6 @@ loguru = "^0.6.0"
 ray = { extras = ["default"], version = "^1.13.0" }
 tqdm = "^4.64.0"
 PyYAML = "^6.0"
-pyspark = { extras = ["sql", "pandas_on_spark"], version = "^3.3.0" }
 click = "<=8.0.4"
 google-cloud-bigquery-storage = "^2.14.1"
 protobuf = "^3.20.0"

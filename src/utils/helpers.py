@@ -68,7 +68,7 @@ def build_search_entities(
     for _ in range(delta_days):
         end = start + timedelta(days=1)
 
-        log.info(f"Building entity with start_date: {start}, end_date: {end_date}")
+        log.info(f"Building entity with start_date: {start}, end_date: {end}")
         for entity in entities:
             final_entity = insert_start_end_date(entity, start, end)
             chunk.append(final_entity)

@@ -33,8 +33,6 @@ def main(conf: DictConfig) -> None:
         log.info(f"Running with start_date: {start_date}, end_date: {end_date}")
         search_entities = build_search_entities(conf.entity, start_date, end_date)
 
-        exit()
-
         for entity in search_entities:
             crawler_conf = producer_conf.copy()
             crawler_conf.update({"entity": entity})
