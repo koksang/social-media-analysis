@@ -1,18 +1,14 @@
-{% macro filter_tweets(size) %}
+{% macro generate_schema_name(custom_schema_name, node) -%}
 
-    {#-- Extra indentation so it appears inline when script is compiled. -#}
+    {%- set default_schema = target.schema -%}
+    {%- if custom_schema_name is none -%}
 
-    {% set size = size|upper %}
+        {{ default_schema }}
 
-    {% if target.name == "prod" %}
-        {# -- Checks so ensure allowed warehouse size -#}
-        {{ check__warehouse_size(size) }}
-        {{ log("Warehouse resize - Target: " ~ target.name + ", size: " ~ size) }}
-        ALTER WAREHOUSE {{ target.warehouse }} SET WAREHOUSE_SIZE={{ size }}
+    {%- else -%}
 
-    {% else %}
-        {{ log("Not resizing warehouse as only supports target `prod`. Got Target: " ~ target.name) }}
-    
-    {% endif %}
+        {{ custom_schema_name | trim }}
 
-{% endmacro %}
+    {%- endif -%}
+
+{%- endmacro %}`
