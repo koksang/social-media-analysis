@@ -19,7 +19,7 @@ with tweets as (
         , token
 
     from 
-        {{ ref("tweet_mentioned_tokens") }}
+        {{ ref("tweet_tokens") }}
         , unnest(tokens) token
 
 )
