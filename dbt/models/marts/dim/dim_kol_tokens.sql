@@ -4,11 +4,12 @@ with tweets as (
 
         id
         , url
+        , created_timestamp
         , kol
 
     from 
-        ref("tweet_kols")
-        , unnest(kols) kols
+        {{ ref("tweet_kols") }}
+        , unnest(kols) kol
     where 
         kols is not null
     

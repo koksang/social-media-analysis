@@ -4,10 +4,11 @@ with tweets as (
 
         id
         , url
+        , created_timestamp
         , topic
 
     from 
-        ref("tweet_topics")
+        {{ ref("tweet_topics") }}
         , unnest(topics) topic
     where 
         topics is not null

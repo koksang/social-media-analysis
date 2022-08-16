@@ -7,7 +7,7 @@ with tweet_tokens as (
         , token
 
     from 
-        ref("tweet_tokens")
+        {{ ref("tweet_tokens") }}
         , unnest(tokens) token
     where 
         tokens is not null
