@@ -42,20 +42,20 @@ with tweets as (
 )
 
 select * from joined 
-pivot(
-    count(*) for token in 
-    (
-        "ada",
-        "bnb",
-        "btc",
-        "eth",
-        "erg",
-        "matic",
-        "sol",
-        "avax",
-        "doge",
-        "shib",
-        "link",
-        "xrp"
-    )
-)
+-- pivot(
+--     count(*) for token in 
+--     (
+--         "ada",
+--         "bnb",
+--         "btc",
+--         "eth",
+--         "erg",
+--         "matic",
+--         "sol",
+--         "avax",
+--         "doge",
+--         "shib",
+--         "link",
+--         "xrp"
+--     )
+-- )

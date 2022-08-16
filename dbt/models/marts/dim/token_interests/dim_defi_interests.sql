@@ -27,8 +27,10 @@ with tweets as (
 , joined as (
     select
 
-        extract(week from a.created_timestamp) week
-        , token
+        a.id
+        , a.url
+        , a.created_timestamp
+        , b.token
         
     from
         tweets a
@@ -40,7 +42,3 @@ with tweets as (
 )
 
 select * from joined 
-pivot(
-    count(*) for token in 
-    ("ada", "bnb", "btc", "eth", "erg", "matic", "sol", "avax", "doge", "shib", "link", "xrp")
-)

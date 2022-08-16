@@ -16,7 +16,7 @@ with tweets as (
     
         id
         , url
-        , * except(id, url, created_timestamp)
+        , token
 
     from 
         {{ ref("tweet_token_interests") }}
@@ -26,8 +26,10 @@ with tweets as (
 , joined as (
     select
 
-        extract(week from a.created_timestamp) week
-        , b.*
+        a.id
+        , a.url
+        , a.created_timestamp
+        , b.token
         
     from
         tweets a
