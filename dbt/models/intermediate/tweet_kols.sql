@@ -13,14 +13,14 @@ with tweets as (
 
 )
 
-, final as (
+, flat as (
 
     select
     
-        id
+        distinct id
         , url
         , created_timestamp
-        , array_agg(mentioned_kols ignore nulls) kols
+        , kol
         
     from
         tweets
@@ -35,7 +35,21 @@ with tweets as (
             , if ( regexp_contains(lower(content), r"(sam bankman|sbf|sambankman)") or contains_substr(entity, "sambankman"), "sambankman", null)
             , if ( contains_substr(content, "cathy wood") or contains_substr(entity, "cathywood"), "cathywood", null)
             , if ( contains_substr(content, "justin sun") or contains_substr(entity, "justinsun"), "justinsun", null)
-        ]) mentioned_kols
+        ]) kol
+
+)
+
+, final as (
+
+    select
+    
+        id
+        , url
+        , created_timestamp
+        , array_agg(kol ignore nulls) kols
+        
+    from
+        flat
     group by
         1, 2, 3
 

@@ -1,9 +1,3 @@
-{{
-    config(
-        materialized = "table"
-    )
-}}
-
 with tweets as (
 
     select

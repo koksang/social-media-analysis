@@ -53,4 +53,4 @@ models:
           granularity: month
       
       dim:
-        +materialized: view
+        +materialized: table

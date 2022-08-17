@@ -13,14 +13,14 @@ with tweets as (
 
 )
 
-, final as (
+, flat as (
 
     select
     
-        id
+        distinct id
         , url
         , created_timestamp
-        , array_agg(mentioned_topics ignore nulls) topics
+        , topic
         
     from
         tweets
@@ -34,7 +34,21 @@ with tweets as (
             , if ( contains_substr(content, "ftx") or contains_substr(entity, "ftx"), "ftx", null)
             , if ( contains_substr(content, "ark") or contains_substr(entity, "ark"), "arkinvest", null)
             , if ( contains_substr(content, "nansen ai") or contains_substr(entity, "nansen"), "nansenai", null)
-        ]) mentioned_topics
+        ]) topic
+
+)
+
+, final as (
+
+    select
+    
+        id
+        , url
+        , created_timestamp
+        , array_agg(topic ignore nulls) topics
+        
+    from
+        flat
     group by
         1, 2, 3
 
