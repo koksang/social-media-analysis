@@ -39,7 +39,7 @@ with tweets as (
 
     from
         tweets a
-    left join
+    inner join
         tweet_tokens b
     on
         a.id = b.id
