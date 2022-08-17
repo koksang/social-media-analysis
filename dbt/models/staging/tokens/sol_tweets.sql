@@ -1,4 +1,4 @@
-with sol_tweets as (
+with tweets as (
 
     select 
         * except(entity)
