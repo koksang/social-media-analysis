@@ -19,7 +19,7 @@ with tweets as (
 
 , final as (
 
-    select * from ada_tweets
+    select * from tweets
     union all
     select * from base
 
