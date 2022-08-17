@@ -1,3 +1,9 @@
+{{
+    config(
+        unique_key = ["id", "entity"]
+    )
+}}
+
 with tweet_tokens as (
 
     select
@@ -18,7 +24,7 @@ with tweet_tokens as (
 
     select 
 
-        distinct id
+        id
         , url
         , created_timestamp
     
@@ -37,7 +43,7 @@ with tweet_tokens as (
         
     from
         tweets a
-    left join
+    right join
         tweet_tokens b
     on
         a.id = b.id
@@ -45,5 +51,3 @@ with tweet_tokens as (
 )
 
 select * from final
-where
-    created_timestamp >= "2022-05-01"

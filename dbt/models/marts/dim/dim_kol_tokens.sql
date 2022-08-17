@@ -1,3 +1,9 @@
+{{
+    config(
+        materialized = "table"
+    )
+}}
+
 with tweets as (
 
     select
@@ -33,7 +39,7 @@ with tweets as (
 
     from
         tweets a
-    left join
+    right join
         tweet_tokens b
     on
         a.id = b.id
@@ -42,5 +48,3 @@ with tweets as (
 )
 
 select * from final
-where
-    created_timestamp >= "2022-05-01"

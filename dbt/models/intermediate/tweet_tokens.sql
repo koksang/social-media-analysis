@@ -13,14 +13,14 @@ with tweets as (
 
 )
 
-, final as (
+, flat as (
 
     select
     
-        id
+        distinct id
         , url
         , created_timestamp
-        , array_agg(mentioned_tokens ignore nulls) tokens
+        , token
         
     from
         tweets
@@ -37,7 +37,21 @@ with tweets as (
             , if ( contains_substr(content, "shib") or contains_substr(content, "shibatoken") or contains_substr(entity, "shib"), "shib", null)
             , if ( contains_substr(content, "link") or contains_substr(content, "chainlink") or contains_substr(entity, "link"), "link", null)
             , if ( contains_substr(content, "xrp") or contains_substr(content, "ripple") or contains_substr(entity, "xrp"), "xrp", null)
-        ]) mentioned_tokens
+        ]) token
+
+)
+
+, final as (
+
+    select
+    
+        id
+        , url
+        , created_timestamp
+        , array_agg(token ignore nulls) tokens
+        
+    from
+        flat
     group by
         1, 2, 3
 
