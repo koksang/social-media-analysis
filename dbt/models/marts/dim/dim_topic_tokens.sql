@@ -1,6 +1,6 @@
 {{
     config(
-        unique_key = ["id", "entity"]
+        unique_key = ["id", "token", "topic", "created_timestamp"]
     )
 }}
 
@@ -39,7 +39,7 @@ with tweets as (
 
     from
         tweets a
-    right join
+    left join
         tweet_tokens b
     on
         a.id = b.id

@@ -1,3 +1,9 @@
+{{
+    config(
+        unique_key = ["id", "token", "kol", "created_timestamp"]
+    )
+}}
+
 with tweets as (
 
     select
@@ -33,7 +39,7 @@ with tweets as (
 
     from
         tweets a
-    right join
+    left join
         tweet_tokens b
     on
         a.id = b.id

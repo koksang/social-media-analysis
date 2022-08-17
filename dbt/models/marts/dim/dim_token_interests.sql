@@ -1,6 +1,6 @@
 {{
     config(
-        unique_key = ["id", "entity"]
+        unique_key = ["id", "token", "created_timestamp"]
     )
 }}
 
@@ -36,15 +36,15 @@ with tweet_tokens as (
 
     select
 
-        a.id
-        , a.url
-        , a.created_timestamp
-        , b.token
+        b.id
+        , b.url
+        , b.created_timestamp
+        , a.token
         
     from
-        tweets a
-    right join
-        tweet_tokens b
+        tweet_tokens a
+    left join
+        tweets b
     on
         a.id = b.id
         and a.url = b.url
