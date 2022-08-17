@@ -9,6 +9,6 @@ twitter:
       method: service-account
       priority: interactive
       project: "{{ env_var('GOOGLE_PROJECT_ID') }}"
-      threads: 6
+      threads: 4
       type: bigquery
   target: default
