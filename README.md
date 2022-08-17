@@ -84,7 +84,7 @@
 
 ![Social Media Analysis](images/social-media-analysis.png)
 
-This is a simple end-to-end deployment that analyses tweets & users of selected topics. Its made to be crypto / blockchain related here such as crypto KOLs, applications and tokens.
+This is a simple and scalable end-to-end solution that analyses tweets & users of selected topics. Its made to be crypto / blockchain related here such as crypto KOLs, applications and tokens.
 It deploys
 - [x] Scalable crawler that crawls
     - [x] Tweets of topics mentioning influencers such as Elon Musk, Vitalik, applications such as DeFi, Metaverse, tokens suchs as $BTC, $ETH, $ADA
