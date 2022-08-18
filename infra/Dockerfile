@@ -1,92 +1,69 @@
-ARG APP_NAME=social-media-analysis
+ARG APP_NAME=social_media_analysis
 ARG APP_PATH=/opt/$APP_NAME
 ARG APP_USER=koksang
-ARG PYTHON_VERSION=3.9-slim
-ARG POETRY_VERSION=1.1.13
+ARG APP_MAINTAINER="$APP_USER <koksanggl@gmail.com>"
+ARG BASE_IMAGE=python:3.9-slim
+ARG POETRY_VERSION=1.1.14
+ARG POETRY_HOME=/opt/poetry
 
 # ----------------------------------------------------
-# staging
+# build image
 # ----------------------------------------------------
-FROM python:$PYTHON_VERSION as staging
+FROM $BASE_IMAGE as build
 ARG APP_NAME
 ARG APP_PATH
 ARG POETRY_VERSION
+ARG POETRY_HOME
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONFAULTHANDLER=1 \
+    # poetry
     POETRY_VERSION=$POETRY_VERSION \
-    POETRY_HOME="/opt/poetry" \
+    POETRY_HOME=$POETRY_HOME \
+    # poetry will create virtualenv in .venv in root project path $APP_PATH
     POETRY_VIRTUALENVS_IN_PROJECT=true \
-    POETRY_NO_INTERACTION=1
+    POETRY_NO_INTERACTION=1 \
+    PATH="$POETRY_HOME/bin:$PATH"
 
 # Install Poetry - respects $POETRY_VERSION & $POETRY_HOME
-RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python
-ENV PATH="$POETRY_HOME/bin:$PATH"
+ADD https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py install-poetry.py 
+RUN python install-poetry.py
 
-# Import our project files
+# Import project files & build application
 WORKDIR $APP_PATH
-COPY ./pyproject.toml ./
-COPY ./src ./src
+COPY ./pyproject.toml ./poetry.lock ./
+COPY ./$APP_NAME ./$APP_NAME
+RUN poetry install --no-dev
 
 # ----------------------------------------------------
-# development
+# final image
 # ----------------------------------------------------
-FROM staging as development
+FROM $BASE_IMAGE as final
 ARG APP_NAME
 ARG APP_PATH
+ARG APP_USER
+ARG APP_MAINTAINER
 
-# Install project in editable mode and with development dependencies
-WORKDIR $APP_PATH
-RUN poetry install
-
-# In development mode we use the default flask webserver
-ENV FLASK_APP=$APP_NAME \
-    FLASK_ENV=development \
-    FLASK_RUN_HOST=0.0.0.0 \
-    FLASK_RUN_PORT=8888
-
-ENTRYPOINT ["poetry", "run"]
-CMD ["flask", "run"]
-
-# ----------------------------------------------------
-# build
-# ----------------------------------------------------
-FROM staging as build
-ARG APP_PATH
-
-WORKDIR $APP_PATH
-RUN poetry build --format wheel
-RUN poetry export --format requirements.txt --output constraints.txt --without-hashes
-
-# ----------------------------------------------------
-# production
-# ----------------------------------------------------
-FROM python:$PYTHON_VERSION as production
-ARG APP_NAME
-ARG APP_PATH
-
-LABEL org.opencontainers.image.authors="koksang <koksanggl@gmail.com>"
+LABEL org.opencontainers.image.authors=$APP_MAINTAINER
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONFAULTHANDLER=1 \
     PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
-    PIP_DEFAULT_TIMEOUT=100
+    PIP_DEFAULT_TIMEOUT=100 \
+    # set app env variables
+    APP_PATH=$APP_PATH \
+    APP_NAME=$APP_NAME \
+    # set pythonpath
+    PATH="$APP_PATH/.venv/bin:$PATH"
 
 # Get build artifact wheel and install it respecting dependency versions
 WORKDIR $APP_PATH
-COPY --from=build $APP_PATH/dist/*.whl ./
-COPY --from=build $APP_PATH/constraints.txt ./
-RUN pip install ./$APP_NAME*.whl --constraint constraints.txt
-
-# gunicorn port. Naming is consistent with GCP Cloud Run
-ENV PORT=8888
-# export APP_NAME as environment variable for the CMD
-ENV APP_NAME=$APP_NAME
+COPY --from=build $APP_PATH/.venv ./.venv
+COPY ./$APP_NAME ./$APP_NAME
 
 # Entrypoint script
-COPY ./docker/docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
-ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["gunicorn", "--bind :$PORT", "--workers 1", "--threads 1", "--timeout 0", "\"$APP_NAME:create_app()\""]
+COPY ./infra/docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod +x ./docker-entrypoint.sh
+ENTRYPOINT ["./docker-entrypoint.sh"]
