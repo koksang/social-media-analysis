@@ -126,7 +126,7 @@ You will need docker engine & docker-compose cli such as [docker-compose][docker
 * docker-compose cli
 
     ```console
-    $ brew install colima docker-compose
+    $ brew install docker-compose
     ```
 
 You will need a Google Cloud Platform account in order to setup BigQuery and the credentials in order for it to work
