@@ -121,7 +121,7 @@ Currently, the setup can only be done in a single machine. Everything is in cont
 
 ### Prerequisites
 
-You will need docker engine & docker-compose cli such as [docker-compose][dockercompose-url]. I am on *MacOS* and use a combination of [Colima][colima-url] & [brew docker-compose][dockercomposemacos-url]
+You will need docker engine & docker-compose cli such as [docker-compose][dockercompose-url]. I am on *MacOS* and use a combination of [colima][colima-url] + [docker-compose][dockercomposemacos-url]
 
 * docker-compose cli
 
