@@ -37,7 +37,7 @@
 <h3 align="center">Social Media Analysis</h3>
 
   <p align="center">
-    End-to-end deployment for analysing social media contents
+    End-to-end solution for analysing social media contents
     <br />
     <a href="https://github.com/koksang/social-media-analysis"><strong>Explore the docs »</strong></a>
     <br />
@@ -84,18 +84,18 @@
 
 ![Social Media Analysis](images/social-media-analysis.png)
 
-This is a simple and scalable end-to-end solution that analyses tweets & users of selected topics. Its made to be crypto / blockchain related here such as crypto KOLs, applications and tokens.
+This is a simple and scalable end-to-end solution that analyses tweets & users of selected topics. Here, tts made to be crypto / blockchain related, such as crypto KOLs, applications and coins.
 It deploys
 - [x] Scalable crawler that crawls
-    - [x] Tweets of topics mentioning influencers such as Elon Musk, Vitalik, applications such as DeFi, Metaverse, tokens suchs as $BTC, $ETH, $ADA
+    - [x] Tweets of topics mentioning influencers such as Elon Musk, Vitalik, applications such as DeFi, Metaverse, coins suchs as $BTC, $ETH, $ADA
     - [x] Users mentioning the tweets above, are snapshotted daily
 - [x] Stream ingestion of crawled data into data warehouse
     - [x] Tweets data
     - [x] Users data
 - [x] Clean and transform data into dimensions that models
-    - [x] Token interests - grouped by crypto KOLs
-    - [x] Token interests - grouped by crypto applications
-- [x] [**BI Dashboard**][datastudio-url] - shows insights of token interests in different segment of social media users
+    - [x] Coin interests - grouped by crypto KOLs
+    - [x] Coin interests - grouped by crypto applications
+- [x] [**BI Dashboard**][datastudio-url] - shows insights of coin interests in different segment of social media users
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
