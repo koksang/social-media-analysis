@@ -8,10 +8,10 @@ from textwrap import dedent
 from datetime import datetime, timedelta
 from pathlib import Path
 from airflow import DAG
-from airflow.providers.docker.operators.docker import DockerOperator
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
     KubernetesPodOperator,
 )
+from operators import GcloudDockerOperator
 
 DAG_ID = Path(__file__).stem
 DOC_MD = dedent(__doc__)
@@ -36,7 +36,7 @@ DAG_CONFIG = {
     "concurrency": 2,
     "catchup": False,
 }
-IMAGE = ""
+IMAGE = "social-media-analysis:latest"
 PRODUCER_CMD = """
 {%- if params.start_date -%}
     python src/main.py producer=backfill producer.start_date={{ params.start_date }} producer.end_date={{ params.end_date }}
@@ -47,11 +47,11 @@ PRODUCER_CMD = """
 CONSUMER_CMD = "python src/main.py run_mode=consumer"
 
 with DAG(dag_id=DAG_ID, doc_md=DOC_MD, **DAG_CONFIG) as dag:
-    produce = DockerOperator(
-        task_id="produce", image=IMAGE, cpus=12, command=PRODUCER_CMD
+    produce = GcloudDockerOperator(
+        task_id="produce", image=IMAGE, cpus=4, command=PRODUCER_CMD
     )
-    consume = DockerOperator(
-        task_id="consume", image=IMAGE, cpus=3, command=CONSUMER_CMD
+    consume = GcloudDockerOperator(
+        task_id="consume", image=IMAGE, cpus=4, command=CONSUMER_CMD
     )
 
     produce >> consume
