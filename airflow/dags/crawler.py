@@ -15,7 +15,7 @@ from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
 
 DAG_ID = Path(__file__).stem
 DOC_MD = dedent(__doc__)
-DAG_START_DATE = datetime(2022, 8, 14, 0, 0)
+DAG_START_DATE = datetime(2022, 8, 21, 0, 0)
 DAG_SCHEDULE_INTERVAL = "0 */12 * * *"
 DAG_CONFIG = {
     "default_args": {
