@@ -2,7 +2,6 @@
 logs
 
 # files
-unittests.cfg
 
 # wildcards
 **/__pycache__
