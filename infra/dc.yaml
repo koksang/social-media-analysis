@@ -1,0 +1,280 @@
+version: '2'
+networks:
+  app:
+    driver: bridge
+
+# -------------------------------------------- common params -------------------------------------------------
+x-airflow-common:
+  &airflow-common
+  # In order to add custom dependencies or upgrade provider packages you can use your extended image.
+  # Comment the image line, place your Dockerfile in the directory where you placed the docker-compose.yaml
+  # and uncomment the "build" line below, Then run `docker-compose build` to build the images.
+  image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.3.2}
+  networks: 
+    - app
+  # build: .
+  environment:
+    &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: CeleryExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+    # For backward compatibility, with Airflow <2.3
+    AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+    AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres/airflow
+    AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
+    AIRFLOW__CORE__FERNET_KEY: ''
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth'
+    _AIRFLOW_DB_UPGRADE: 'true'
+    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
+  volumes:
+    - ../airflow/dags:/opt/airflow/dags
+    - ../airflow/logs:/opt/airflow/logs
+    - ../airflow/plugins:/opt/airflow/plugins
+    - ../dbt/target:/opt/airflow/dbt/target
+  user: "${AIRFLOW_UID:-50000}:0"
+  depends_on:
+    &airflow-common-depends-on
+    redis:
+      condition: service_healthy
+    postgres:
+      condition: service_healthy
+
+
+services:
+# -------------------------------------------- Airflow -------------------------------------------------
+  postgres:
+    image: postgres:13
+    hostname: postgres
+    container_name: postgres
+    networks: 
+      - app
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 5s
+      retries: 5
+    restart: always
+
+  redis:
+    image: redis:latest
+    hostname: redis
+    container_name: redis
+    networks: 
+      - app
+    expose:
+      - 6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 30s
+      retries: 50
+    restart: always
+
+  airflow-webserver:
+    <<: *airflow-common
+    hostname: airflow-webserver
+    container_name: airflow-webserver
+    command: webserver
+    ports:
+      - 8080:8080
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    restart: always
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-scheduler:
+    <<: *airflow-common
+    hostname: airflow-scheduler
+    container_name: airflow-scheduler
+    command: scheduler
+    healthcheck:
+      test: ["CMD-SHELL", 'airflow jobs check --job-type SchedulerJob --hostname "$${HOSTNAME}"']
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    restart: always
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-worker:
+    <<: *airflow-common
+    hostname: airflow-worker
+    container_name: airflow-worker
+    command: celery worker
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - 'celery --app airflow.executors.celery_executor.app inspect ping -d "celery@$${HOSTNAME}"'
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    environment:
+      <<: *airflow-common-env
+      # Required to handle warm shutdown of the celery workers properly
+      # See https://airflow.apache.org/docs/docker-stack/entrypoint.html#signal-propagation
+      DUMB_INIT_SETSID: "0"
+    restart: always
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-init:
+    <<: *airflow-common
+    hostname: airflow-init
+    container_name: airflow-init
+    entrypoint: /bin/bash
+    # yamllint disable rule:line-length
+    command:
+      - -c
+      - |
+        function ver() {
+          printf "%04d%04d%04d%04d" $${1//./ }
+        }
+        airflow_version=$$(AIRFLOW__LOGGING__LOGGING_LEVEL=INFO && gosu airflow airflow version)
+        airflow_version_comparable=$$(ver $${airflow_version})
+        min_airflow_version=2.2.0
+        min_airflow_version_comparable=$$(ver $${min_airflow_version})
+        if (( airflow_version_comparable < min_airflow_version_comparable )); then
+          echo
+          echo -e "\033[1;31mERROR!!!: Too old Airflow version $${airflow_version}!\e[0m"
+          echo "The minimum Airflow version supported: $${min_airflow_version}. Only use this or higher!"
+          echo
+          exit 1
+        fi
+        if [[ -z "${AIRFLOW_UID}" ]]; then
+          echo
+          echo -e "\033[1;33mWARNING!!!: AIRFLOW_UID not set!\e[0m"
+          echo "If you are on Linux, you SHOULD follow the instructions below to set "
+          echo "AIRFLOW_UID environment variable, otherwise files will be owned by root."
+          echo "For other operating systems you can get rid of the warning with manually created .env file:"
+          echo "    See: https://airflow.apache.org/docs/apache-airflow/stable/start/docker.html#setting-the-right-airflow-user"
+          echo
+        fi
+        one_meg=1048576
+        mem_available=$$(($$(getconf _PHYS_PAGES) * $$(getconf PAGE_SIZE) / one_meg))
+        cpus_available=$$(grep -cE 'cpu[0-9]+' /proc/stat)
+        disk_available=$$(df / | tail -1 | awk '{print $$4}')
+        warning_resources="false"
+        if (( mem_available < 4000 )) ; then
+          echo
+          echo -e "\033[1;33mWARNING!!!: Not enough memory available for Docker.\e[0m"
+          echo "At least 4GB of memory required. You have $$(numfmt --to iec $$((mem_available * one_meg)))"
+          echo
+          warning_resources="true"
+        fi
+        if (( cpus_available < 2 )); then
+          echo
+          echo -e "\033[1;33mWARNING!!!: Not enough CPUS available for Docker.\e[0m"
+          echo "At least 2 CPUs recommended. You have $${cpus_available}"
+          echo
+          warning_resources="true"
+        fi
+        if (( disk_available < one_meg * 10 )); then
+          echo
+          echo -e "\033[1;33mWARNING!!!: Not enough Disk space available for Docker.\e[0m"
+          echo "At least 10 GBs recommended. You have $$(numfmt --to iec $$((disk_available * 1024 )))"
+          echo
+          warning_resources="true"
+        fi
+        if [[ $${warning_resources} == "true" ]]; then
+          echo
+          echo -e "\033[1;33mWARNING!!!: You have not enough resources to run Airflow (see above)!\e[0m"
+          echo "Please follow the instructions to increase amount of resources available:"
+          echo "   https://airflow.apache.org/docs/apache-airflow/stable/start/docker.html#before-you-begin"
+          echo
+        fi
+        mkdir -p /sources/logs /sources/dags /sources/plugins
+        chown -R "${AIRFLOW_UID}:0" /sources/{logs,dags,plugins}
+        exec /entrypoint airflow version
+    # yamllint enable rule:line-length
+    environment:
+      <<: *airflow-common-env
+      _AIRFLOW_DB_UPGRADE: 'true'
+      _AIRFLOW_WWW_USER_CREATE: 'true'
+      _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME:-airflow}
+      _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-airflow}
+      _PIP_ADDITIONAL_REQUIREMENTS: ''
+    user: "0:0"
+    # volumes:
+    #   - .:/sources
+
+# ----------------------------------------------- Kafka -----------------------------------------------
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.2.1
+    hostname: zookeeper
+    container_name: zookeeper
+    networks: 
+      - app
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  broker-1:
+    image: confluentinc/cp-kafka:7.2.1
+    hostname: broker-1
+    container_name: broker-1
+    networks: 
+      - app
+    depends_on:
+      - zookeeper
+    ports:
+      - 9092:9092
+      - 9021:9021
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker-1:19092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 2
+      KAFKA_NUM_PARTITIONS: 2
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_JMX_PORT: 9021
+      KAFKA_JMX_HOSTNAME: localhost
+
+  broker-2:
+    image: confluentinc/cp-kafka:7.2.1
+    hostname: broker-2
+    container_name: broker-2
+    networks: 
+      - app
+    depends_on:
+      - zookeeper
+    ports:
+      - 19092:19092
+      - 19021:19021
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker-2:29092,PLAINTEXT_HOST://localhost:19092
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 2
+      KAFKA_NUM_PARTITIONS: 2
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_JMX_PORT: 19021
+      KAFKA_JMX_HOSTNAME: localhost
+
+volumes:
+  postgres-db-volume:

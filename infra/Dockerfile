@@ -5,6 +5,7 @@ ARG APP_MAINTAINER="$APP_USER <koksanggl@gmail.com>"
 ARG BASE_IMAGE=python:3.9-slim
 ARG POETRY_VERSION=1.1.14
 ARG POETRY_HOME=/opt/poetry
+ARG DBT_HOME="$APP_PATH/dbt"
 
 # ----------------------------------------------------
 # build image
@@ -33,8 +34,7 @@ RUN python install-poetry.py
 # Import project files & build application
 WORKDIR $APP_PATH
 COPY ./pyproject.toml ./poetry.lock ./
-COPY ./$APP_NAME ./$APP_NAME
-RUN poetry install --no-dev
+RUN poetry install --no-dev -vvv -n
 
 # ----------------------------------------------------
 # final image
@@ -44,6 +44,7 @@ ARG APP_NAME
 ARG APP_PATH
 ARG APP_USER
 ARG APP_MAINTAINER
+ARG DBT_HOME
 
 LABEL org.opencontainers.image.authors=$APP_MAINTAINER
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -62,6 +63,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR $APP_PATH
 COPY --from=build $APP_PATH/.venv ./.venv
 COPY ./$APP_NAME ./$APP_NAME
+COPY ./dbt $DBT_HOME
 
 # Entrypoint script
 COPY ./infra/docker-entrypoint.sh ./docker-entrypoint.sh

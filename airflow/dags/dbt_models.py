@@ -4,6 +4,7 @@
 - generate all views
 """
 
+import os
 import json
 from textwrap import dedent
 from datetime import datetime, timedelta
@@ -12,11 +13,10 @@ from dateutil.parser import parse
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.sensors.python import PythonSensor
-from airflow.decorators import dag
 
 DAG_ID = Path(__file__).stem
 DOC_MD = dedent(__doc__)
-DAG_START_DATE = datetime(2022, 8, 14, 0, 0)
+DAG_START_DATE = datetime(2022, 8, 21, 0, 0)
 DAG_SCHEDULE_INTERVAL = None  # "0 */12 * * *"
 DAG_CONFIG = {
     "default_args": {
@@ -38,7 +38,8 @@ DAG_CONFIG = {
     "catchup": False,
 }
 
-DBT_BASE_PATH = "/Users/klim/Projects/social-media-analysis/dbt"  # "/app/dbt"
+AIRFLOW_HOME = os.environ.get("AIRFLOW_HOME", "/opt/airflow")
+DBT_BASE_PATH = os.path.join(AIRFLOW_HOME, "dbt")
 DBT_MANIFEST_FILENAME = str(Path(DBT_BASE_PATH, "target", "manifest.json"))
 DBT_EXTRA_CMD = "--profiles-dir ."
 DBT_MODEL_CMD = "-m {dbt_model}"

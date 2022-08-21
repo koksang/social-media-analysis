@@ -175,7 +175,7 @@ pycparser = "*"
 
 [[package]]
 name = "charset-normalizer"
-version = "2.1.0"
+version = "2.1.1"
 description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
 category = "main"
 optional = false
@@ -354,7 +354,7 @@ grpc = ["grpcio (>=1.33.2,<2.0dev)", "grpcio-status (>=1.33.2,<2.0dev)"]
 
 [[package]]
 name = "google-auth"
-version = "2.10.0"
+version = "2.11.0"
 description = "Google Authentication Library"
 category = "main"
 optional = false
@@ -367,10 +367,10 @@ rsa = {version = ">=3.1.4,<5", markers = "python_version >= \"3.6\""}
 six = ">=1.9.0"
 
 [package.extras]
-aiohttp = ["requests (>=2.20.0,<3.0.0dev)", "aiohttp (>=3.6.2,<4.0.0dev)"]
-enterprise_cert = ["cryptography (==36.0.2)", "pyopenssl (==22.0.0)"]
-pyopenssl = ["pyopenssl (>=20.0.0)"]
 reauth = ["pyu2f (>=0.1.5)"]
+pyopenssl = ["pyopenssl (>=20.0.0)"]
+enterprise_cert = ["pyopenssl (==22.0.0)", "cryptography (==36.0.2)"]
+aiohttp = ["aiohttp (>=3.6.2,<4.0.0dev)", "requests (>=2.20.0,<3.0.0dev)"]
 
 [[package]]
 name = "google-cloud-bigquery"
