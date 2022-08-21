@@ -1,6 +1,6 @@
 {{
     config(
-        unique_key = "url"
+        unique_key = ["id", "entity"]
     )
 }}
 
@@ -10,25 +10,24 @@ with tweet as (
         
         *
         , row_number() over(
-            partition by url order by timestamp_trunc(created_timestamp, DAY, "UTC") desc
-        ) row_number
+            partition by id, url, entity 
+            order by created_timestamp desc
+        ) row
 
     from 
         {{ source("raw", "tweet") }}
     {% if is_incremental() %}
     -- this filter will only be applied on an incremental run
     where 
-        created_timestamp > (
-            select max(timestamp_trunc(created_timestamp, DAY, "UTC")
-        ) from {{ this }})
+        created_timestamp > ( select max(created_timestamp) from {{ this }} )
     {% endif %}
 
 )
 
 select 
-    * except(row_number)
+    * except(row) 
 from 
     tweet
 where 
-    row_number = 1
+    row = 1
 

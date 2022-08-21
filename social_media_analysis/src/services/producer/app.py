@@ -11,7 +11,7 @@ from model.twitter import Tweet, User
 from core.logger import logger as log
 from utils.helpers import timestamp_to_integer
 
-SEND_LIMIT = 500
+SEND_LIMIT = 300
 
 
 @ray.remote

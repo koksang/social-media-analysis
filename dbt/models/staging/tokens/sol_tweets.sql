@@ -1,4 +1,4 @@
-with sol_tweets as (
+with tweets as (
 
     select 
         * except(entity)
@@ -17,6 +17,19 @@ with sol_tweets as (
 
 )
 
-select * from sol_tweets
-union all
-select * from base 
+, final as (
+
+    select * from tweets
+    union all
+    select * from base
+
+)
+
+select
+    
+    *
+    , 'token' tweet_type
+    , 'sol' tweet_type_value
+    
+from
+    final
