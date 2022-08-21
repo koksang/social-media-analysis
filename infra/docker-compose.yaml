@@ -27,11 +27,12 @@ x-airflow-common:
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth'
     _AIRFLOW_DB_UPGRADE: 'true'
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
+    GOOGLE_APPLICATION_CREDENTIALS_SECRET: ${GOOGLE_APPLICATION_CREDENTIALS_SECRET:-app-service-account}
   volumes:
     - ../airflow/dags:/opt/airflow/dags
     - ../airflow/logs:/opt/airflow/logs
     - ../airflow/plugins:/opt/airflow/plugins
-    - ../dbt/target:/opt/airflow/dbt/target
+    - ../airflow/credentials:/opt/airflow/credentials
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
