@@ -1,8 +1,9 @@
 # folder
-logs/*
-credentials/*
+logs/**/*.log
+credentials/*.json
 
 # files
+logs/**/latest
 
 # wildcards
 **/__pycache__
